@@ -2,541 +2,447 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRIME GAME HUB | Cyber Arena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRIME GAME HUB | HYPER OVERLOAD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --prime-red: #ff003c;     /* Агрессивный красный */
-            --prime-dark: #0a0002;    /* Почти черный с красным отливом */
-            --prime-white: #ffffff;
-            --bonus-green: #39ff14;   /* Неоновый зеленый для денег/бонусов */
-            --glass-bg: rgba(20, 0, 5, 0.85);
-            --grid-color: rgba(255, 0, 60, 0.15);
+            --bg-deep: #020202;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff0055;
+            --brand-green: #39ff14;
+            --prime-red: #ff003c;
+            --glass: rgba(15, 15, 20, 0.85);
+            --border-glow: 0 0 15px rgba(0, 243, 255, 0.4);
         }
 
         * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            cursor: crosshair;
+            box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--prime-dark);
-            color: var(--prime-white);
-            font-family: 'Rajdhani', sans-serif;
-            overflow-x: hidden;
-            position: relative;
+            background-color: var(--bg-deep); color: #fff; font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden; position: relative; line-height: 1.4;
         }
 
-        /* === ФОНОВЫЕ ЭФФЕКТЫ === */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
-            background-size: 100% 4px;
-            z-index: 100;
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
-        .noise {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: repeating-radial-gradient(#000 0 0.0001%,#111 0 0.0002%) 50% 0/2500px 2500px, repeating-conic-gradient(#000 0 0.0001%,#111 0 0.0002%) 60% 60%/2500px 2500px;
-            background-blend-mode: difference;
-            animation: noise .2s infinite alternate;
-            opacity: 0.05;
-            z-index: 99;
-            pointer-events: none;
-        }
-
-        /* Красная сетка на полу */
-        .cyber-grid {
-            position: fixed;
-            bottom: -30%; left: 0; width: 100%; height: 100%;
+        /* === ИНТЕНСИВНЫЙ ФОН === */
+        .bg-layers { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: -2; pointer-events: none; overflow: hidden; }
+        
+        /* Ускоренная сетка */
+        .hex-grid {
+            position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
             background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 40px 40px;
-            transform: perspective(500px) rotateX(60deg) scale(2);
-            z-index: -1;
-            box-shadow: 0 -100px 100px var(--prime-dark) inset;
+                linear-gradient(60deg, rgba(255, 0, 60, 0.15) 25%, transparent 25.5%, transparent 75%, rgba(255, 0, 60, 0.15) 75%, rgba(255, 0, 60, 0.15)),
+                linear-gradient(120deg, rgba(0, 243, 255, 0.1) 25%, transparent 25.5%, transparent 75%, rgba(0, 243, 255, 0.1) 75%, rgba(0, 243, 255, 0.1));
+            background-size: 40px 70px; opacity: 0.4; animation: moveGrid 10s linear infinite;
         }
 
-        /* Частицы/Искры */
-        #particles {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+        /* Ускоренные кольца */
+        .hud-ring {
+            position: absolute; top: 50%; left: 50%; width: 600px; height: 600px; margin-top: -300px; margin-left: -300px;
+            border: 3px dashed rgba(255, 0, 60, 0.3); border-radius: 50%; animation: rotateRight 30s linear infinite;
+        }
+        .hud-ring::before {
+            content: ''; position: absolute; top: 10%; left: 10%; right: 10%; bottom: 10%;
+            border: 2px dotted rgba(0, 243, 255, 0.4); border-radius: 50%; animation: rotateLeft 20s linear infinite;
         }
 
-        /* === HEADER === */
+        /* Агрессивный сканер */
+        .scan-line {
+            position: fixed; top: 0; left: 0; width: 100%; height: 8px;
+            background: linear-gradient(90deg, transparent, var(--prime-red), var(--neon-blue), transparent);
+            box-shadow: 0 0 30px var(--prime-red); opacity: 0.9; animation: scanDown 3s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; z-index: 100; pointer-events: none;
+        }
+
+        /* Слой шума (Noise) */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAElBMVEUAAAAAAAAAAAAAAAAAAAAAAADgKx5ZAAAABnRSTlMzhzmTZpl6U4QAAAABYktHRAH/AiV2AAAAeUlEQVQ4y2NgGFrAhIUYRmYwYSMGIJ8RzGCE8BlhYgYjE4QJEq8RzGCE8BlhYgYjE4QJEq8RzGCE8BlhYgYjE4QJEq8RzGCE8BlhYgYjE4QJEq8RzGCE8BlhYgYjE4QJEq8RzGCE8BlhYgYjE4QJEq8RgIEBABn/Co8E5pYiAAAAAElFTkSuQmCC');
+            opacity: 0.15; animation: noiseAnim 0.5s steps(6) infinite; z-index: 99; pointer-events: none;
+        }
+
+        #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+
+        /* === UI ЭЛЕМЕНТЫ (ПЛОТНОСТЬ И АНИМАЦИЯ) === */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; position: relative; z-index: 2; }
+        
+        /* Стеклянная панель с постоянным дыханием */
+        .glass-panel {
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.7);
+            position: relative;
+            animation: breathe 4s infinite alternate; /* Постоянная пульсация */
+        }
+        /* Эффект бегущей границы */
+        .glass-panel::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, var(--prime-red), var(--neon-blue), var(--brand-green), var(--prime-red));
+            background-size: 400% 400%; z-index: -1; opacity: 0.5; animation: borderDance 5s linear infinite;
+        }
+
+        /* === HEADER (Компактный) === */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 20px; /* Уменьшены отступы */
+            background: rgba(2, 2, 5, 0.95);
             border-bottom: 2px solid var(--prime-red);
-            background: rgba(10, 0, 0, 0.95);
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+            position: sticky; top: 0; z-index: 999;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 25px rgba(255, 0, 60, 0.3);
         }
+        .logo-container { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .site-icon { 
+            width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff;
+            box-shadow: 0 0 20px var(--prime-red); animation: pulseRedFast 1s infinite;
+        }
+        .logo-text { font-family: 'Orbitron'; font-weight: 900; font-size: 1.3rem; line-height: 1; color: #fff; }
+        .logo-text span { color: var(--prime-red); animation: textFlicker 3s infinite; }
+        .menu-toggle { font-size: 1.6rem; color: #fff; animation: floatIcon 2s ease-in-out infinite; }
 
-        .logo-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 2px solid var(--prime-white);
-            padding: 5px 15px;
-        }
-        
-        .logo-top {
-            font-family: 'Orbitron'; 
-            font-size: 2rem; 
-            font-weight: 900; 
-            letter-spacing: 2px;
-            line-height: 1;
-        }
-        
-        .logo-bottom {
-            font-size: 0.8rem;
-            background: var(--prime-red);
-            color: #000;
-            font-weight: 700;
-            width: 100%;
-            text-align: center;
-            letter-spacing: 3px;
-        }
-
-        .contact-info {
-            text-align: right;
-            font-size: 0.9rem;
-        }
-        .contact-info a {
-            color: var(--prime-white);
-            text-decoration: none;
-            display: block;
-            transition: 0.3s;
-        }
-        .contact-info a:hover { color: var(--prime-red); text-shadow: 0 0 5px var(--prime-red); }
-
-        /* === HERO SECTION === */
+        /* === HERO (Сжатый и агрессивный) === */
         .hero {
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            padding: 20px;
+            min-height: 75vh; /* Уменьшена высота */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; position: relative;
         }
-
-        .hero h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            color: transparent;
-            -webkit-text-stroke: 2px var(--prime-white);
-            position: relative;
-            margin-bottom: 20px;
+        .glitch-title {
+            font-family: 'Orbitron'; font-size: clamp(3.5rem, 10vw, 6.5rem); font-weight: 900;
+            color: #fff; text-transform: uppercase; line-height: 0.9;
+            text-shadow: 3px 0px 0px var(--prime-red), -3px 0px 0px var(--neon-blue);
+            animation: glitchTextHard 0.5s infinite; /* Очень быстрый глитч */
         }
-
-        .hero h1::after {
-            content: "PRIME GAME HUB";
-            position: absolute;
-            top: 0; left: 0;
-            color: var(--prime-red);
-            filter: blur(2px);
-            opacity: 0.8;
-            animation: pulseText 2s infinite alternate;
+        .subtitle { 
+            font-size: 1.2rem; margin: 15px 0; letter-spacing: 3px; color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue); display: flex; gap: 10px; align-items: center; font-weight: 700;
         }
-
-        .cta-btn {
-            background: var(--prime-red);
-            color: #fff;
-            padding: 15px 40px;
-            font-family: 'Orbitron';
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: none;
-            text-transform: uppercase;
-            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-            transition: 0.3s;
-            margin-top: 30px;
-            letter-spacing: 2px;
-        }
-
-        .cta-btn:hover {
-            background: #fff;
-            color: var(--prime-red);
-            box-shadow: 0 0 30px var(--prime-red);
-            transform: scale(1.05);
-        }
-
-        /* === BONUS SYSTEM (RED CARDS) === */
-        .section-title {
-            text-align: center;
-            font-family: 'Orbitron';
-            font-size: 2.5rem;
-            margin: 80px 0 40px;
-            color: var(--prime-white);
-            text-shadow: 0 0 10px var(--prime-red);
-            border-bottom: 1px solid var(--prime-red);
-            display: inline-block;
-            padding-bottom: 10px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            text-align: center;
-        }
-
-        .bonus-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-
-        .bonus-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--prime-red);
-            padding: 30px;
-            position: relative;
-            transition: 0.4s;
-            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
-        }
-
-        .bonus-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
-            background: rgba(40, 0, 10, 0.9);
-        }
-
-        .top-up {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--prime-white);
-        }
-
-        .plus {
-            font-size: 2rem;
-            color: var(--prime-red);
-            margin: 10px 0;
-            display: block;
-        }
-
-        .bonus-amount {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--prime-red);
-            text-shadow: 0 0 10px var(--prime-red);
-            background: rgba(0,0,0,0.5);
-            padding: 5px;
-            border: 1px dashed var(--prime-red);
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-
-        .bonus-label {
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #aaa;
-        }
-
-        /* Kaspi Red Badge */
         .kaspi-badge {
             margin-top: 20px;
-            background: #d11c1c;
-            color: white;
-            padding: 5px 15px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 4px;
-            font-family: sans-serif;
-            font-size: 0.9rem;
-            box-shadow: 0 0 15px rgba(209, 28, 28, 0.6);
-            animation: pulse 2s infinite;
+            background: linear-gradient(90deg, #d11c1c, #ff003c, #d11c1c); background-size: 200% auto;
+            padding: 10px 25px; border-radius: 4px; 
+            font-weight: 900; font-family: sans-serif; letter-spacing: 1px;
+            display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 0 30px rgba(255, 0, 60, 0.8);
+            animation: pulseRedFast 0.8s infinite, borderDance 3s linear infinite; border: 2px solid #fff;
         }
+        .cta-btn {
+            margin-top: 30px; padding: 18px 45px;
+            background: var(--prime-red); color: #fff;
+            font-family: 'Orbitron'; font-size: 1.3rem; font-weight: 900;
+            border: none; text-transform: uppercase; letter-spacing: 2px;
+            position: relative; overflow: hidden;
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+            text-decoration: none; box-shadow: 0 0 30px var(--prime-red);
+            animation: pulseRed 2s infinite;
+        }
+        .cta-btn:hover { background: #fff; color: var(--prime-red); transform: scale(1.05); }
 
-        /* === LOYALTY SYSTEM (LIST) === */
-        .loyalty-container {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--prime-white);
-            padding: 40px;
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
+        /* === BONUS CARDS (Плотная сетка) === */
+        .section-header { text-align: center; margin: 40px 0 30px; /* Уменьшены отступы */ }
+        .section-header h2 { 
+            font-family: 'Orbitron'; font-size: 2.2rem; color: #fff; 
+            text-shadow: 0 0 15px var(--prime-red); border-bottom: 3px solid var(--prime-red); 
+            display: inline-block; padding-bottom: 5px; animation: textFlicker 4s infinite;
         }
-        
-        .loyalty-container::before {
-            content: "LEVEL UP SYSTEM";
-            position: absolute;
-            top: -15px; left: 50%;
-            transform: translateX(-50%);
-            background: var(--prime-dark);
-            padding: 0 20px;
-            font-family: 'Orbitron';
-            color: var(--prime-red);
-            border: 1px solid var(--prime-red);
-        }
+        .section-icon { font-size: 2.5rem; color: var(--prime-red); display: block; margin-bottom: 10px; animation: floatIconFast 1.5s ease-in-out infinite; }
 
-        .loyalty-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: 0.3s;
-        }
+        .bonus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; /* Очень плотная сетка */ }
 
-        .loyalty-row:hover {
-            background: rgba(255, 0, 60, 0.1);
-            padding-left: 10px;
-            padding-right: 10px;
+        .bonus-card {
+            padding: 25px 15px; /* Компактные карточки */
+            text-align: center; overflow: hidden; transition: 0.3s;
         }
+        /* Активные уголки */
+        .corner { position: absolute; width: 20px; height: 20px; border-color: var(--prime-red); border-style: solid; box-shadow: 0 0 15px var(--prime-red); animation: pulseRedFast 2s infinite alternate; }
+        .tl { top:0; left:0; border-width: 3px 0 0 3px; }
+        .tr { top:0; right:0; border-width: 3px 3px 0 0; }
+        .bl { bottom:0; left:0; border-width: 0 0 3px 3px; }
+        .br { bottom:0; right:0; border-width: 0 3px 3px 0; }
 
-        .spend-amount {
-            font-size: 1.5rem;
-            font-weight: 700;
+        .bonus-card:hover { transform: scale(1.03); background: rgba(60, 0, 20, 0.9); }
+        .bg-icon {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg);
+            font-size: 9rem; color: rgba(255, 255, 255, 0.02); z-index: 0; animation: rotateRight 60s linear infinite;
         }
-
-        .percent-box {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--bonus-green);
-            text-shadow: 0 0 5px var(--bonus-green);
+        .top-up { font-size: 1.8rem; font-weight: 700; position: relative; z-index: 2; }
+        .plus { font-size: 2.2rem; color: var(--prime-red); position: relative; z-index: 2; animation: floatIconFast 1s infinite; }
+        .bonus-val { 
+            font-size: 3.2rem; font-weight: 900; margin: 5px 0;
+            color: var(--prime-red); text-shadow: 0 0 25px var(--prime-red);
+            position: relative; z-index: 2; animation: textFlicker 2s infinite;
         }
+        .bonus-desc { color: #ccc; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; position: relative; z-index: 2; }
 
-        /* === SOCIALS === */
-        .social-section {
-            padding: 60px 20px;
-            text-align: center;
-            background: linear-gradient(0deg, #000 0%, var(--prime-dark) 100%);
+        /* MAX TIER */
+        .bonus-card.max { border-color: var(--brand-green); }
+        .bonus-card.max::before { background: linear-gradient(45deg, var(--brand-green), var(--neon-blue)); }
+        .bonus-card.max .corner { border-color: var(--brand-green); box-shadow: 0 0 20px var(--brand-green); animation: pulseGreenFast 1.5s infinite alternate; }
+        .bonus-card.max .plus, .bonus-card.max .bonus-val { color: var(--brand-green); text-shadow: 0 0 30px var(--brand-green); }
+        .bonus-card.max:hover { background: rgba(0, 40, 10, 0.95); box-shadow: 0 0 50px rgba(57, 255, 20, 0.5); }
+
+        /* === LOYALTY (Сжатый список) === */
+        .loyalty-container { max-width: 800px; margin: 0 auto; }
+        .loyalty-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; margin-bottom: 10px; /* Уменьшены отступы */
+            border-left: 5px solid var(--prime-red); transition: 0.3s;
+            position: relative; overflow: hidden;
         }
+        .loyalty-item:hover { padding-left: 30px; background: rgba(255, 0, 60, 0.15); }
+        .l-amount { font-size: 1.3rem; font-weight: 700; position: relative; z-index: 2; }
+        .l-percent { font-size: 1.8rem; font-weight: 900; color: var(--prime-red); text-shadow: 0 0 15px var(--prime-red); position: relative; z-index: 2; animation: pulseRed 3s infinite; }
+        .loyalty-item.max { border-left-color: var(--brand-green); background: rgba(57, 255, 20, 0.1); }
+        .loyalty-item.max .l-percent { color: var(--brand-green); text-shadow: 0 0 25px var(--brand-green); animation: pulseGreenFast 2s infinite; }
 
+        /* === SOCIALS (Компактно) === */
+        .social-section { 
+            padding: 50px 20px; /* Уменьшены отступы */
+            text-align: center; background: rgba(0,0,0,0.8); margin-top: 40px; border-top: 2px solid var(--prime-red);
+            box-shadow: 0 -10px 30px rgba(255, 0, 60, 0.3);
+        }
         .social-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            background: transparent;
-            border: 2px solid var(--prime-white);
-            color: var(--prime-white);
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 1.2rem;
-            font-family: 'Orbitron';
-            text-decoration: none;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
+            display: inline-flex; align-items: center; gap: 15px;
+            padding: 15px 35px; margin: 10px;
+            border: 3px solid #fff; color: #fff; text-decoration: none;
+            font-family: 'Orbitron'; font-size: 1.1rem; font-weight: 900;
+            transition: 0.3s; position: relative; z-index: 1;
+            animation: breathe 3s infinite alternate; box-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
+        .social-btn:hover { transform: translateY(-5px) scale(1.05); }
+        .social-btn.tg { border-color: #0088cc; color: #0088cc; box-shadow: 0 0 30px #0088cc; }
+        .social-btn.tg:hover { background: #0088cc; color: #fff; }
+        .social-btn.inst { border-color: #e1306c; color: #e1306c; box-shadow: 0 0 30px #e1306c; }
+        .social-btn.inst:hover { background: #e1306c; color: #fff; }
 
-        .social-btn i { font-size: 1.5rem; }
-
-        .social-btn:hover {
-            background: var(--prime-white);
-            color: #000;
+        /* === FLOATING BUTTONS (Дерганые) === */
+        .float-bar {
+            position: fixed; bottom: 20px; right: 15px;
+            display: flex; flex-direction: column; gap: 12px; z-index: 1000;
         }
-
-        .social-btn.tg { border-color: #0088cc; color: #0088cc; }
-        .social-btn.tg:hover { background: #0088cc; color: #fff; box-shadow: 0 0 20px #0088cc; }
-
-        .social-btn.inst { border-color: #e1306c; color: #e1306c; }
-        .social-btn.inst:hover { background: #e1306c; color: #fff; box-shadow: 0 0 20px #e1306c; }
+        .fab {
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.4rem; color: #fff; text-decoration: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7); border: 2px solid rgba(255,255,255,0.5);
+            transition: 0.3s; animation: floatIconFast 2s ease-in-out infinite, borderDance 3s linear infinite;
+        }
+        .fab:hover { transform: scale(1.2) rotate(10deg); }
+        .fab.tg { background: #0088cc; }
+        .fab.inst { background: #e1306c; animation-delay: 0.3s; }
+        .fab.wa { background: #25D366; animation-delay: 0.6s; }
 
         /* === FOOTER === */
-        footer {
-            padding: 30px;
-            text-align: center;
-            border-top: 2px solid var(--prime-red);
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 50px;
+        footer { 
+            padding: 25px; /* Уменьшены отступы */
+            text-align: center; background: #000; border-top: 3px solid var(--prime-red); 
+            box-shadow: 0 -10px 40px rgba(255, 0, 60, 0.5);
         }
-        
-        .footer-contacts p { margin: 5px 0; color: #aaa; }
-        .highlight { color: var(--prime-red); font-weight: bold; }
+        .footer-info p { margin: 8px 0; color: #ccc; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .footer-info i { color: var(--prime-red); animation: pulseRedFast 1s infinite; }
 
-        @keyframes pulseText {
-            0% { opacity: 0.5; text-shadow: 0 0 5px var(--prime-red); }
-            100% { opacity: 1; text-shadow: 0 0 20px var(--prime-red), 0 0 40px var(--prime-red); }
+        /* === АГРЕССИВНЫЕ АНИМАЦИИ === */
+        @keyframes moveGrid { 0% { background-position: 0 0; } 100% { background-position: 0 100px; } }
+        @keyframes rotateRight { 100% { transform: rotate(360deg); } }
+        @keyframes rotateLeft { 100% { transform: rotate(-360deg); } }
+        @keyframes scanDown { 0% { top: -10%; opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+        @keyframes pulseRed { 0%, 100% { box-shadow: 0 0 15px var(--prime-red) inset, 0 0 15px var(--prime-red); } 50% { box-shadow: 0 0 30px var(--prime-red) inset, 0 0 30px var(--prime-red); } }
+        @keyframes pulseRedFast { 0%, 100% { box-shadow: 0 0 15px var(--prime-red); opacity: 1; } 50% { box-shadow: 0 0 40px var(--prime-red); opacity: 0.7; } }
+        @keyframes pulseGreenFast { 0%, 100% { box-shadow: 0 0 15px var(--brand-green); } 50% { box-shadow: 0 0 40px var(--brand-green); } }
+        @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes floatIconFast { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px) scale(1.05); } }
+        @keyframes breathe { 0%, 100% { border-color: rgba(255,255,255,0.1); } 50% { border-color: rgba(255, 0, 60, 0.5); box-shadow: 0 0 30px rgba(255, 0, 60, 0.3); } }
+        @keyframes borderDance { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        @keyframes noiseAnim { 0% { background-position: 0 0; } 100% { background-position: 100% 100%; } }
+        @keyframes textFlicker { 
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 10px currentColor; }
+            20%, 24%, 55% { opacity: 0.5; text-shadow: none; }
+        }
+        @keyframes glitchTextHard { 
+            0% { transform: translate(0); text-shadow: 3px 0px 0px var(--prime-red), -3px 0px 0px var(--neon-blue); }
+            20% { transform: translate(-3px, 3px); text-shadow: -3px -3px 0px var(--prime-red), 3px 3px 0px var(--neon-blue); }
+            40% { transform: translate(3px, -3px); text-shadow: 3px 3px 0px var(--prime-red), -3px -3px 0px var(--neon-blue); }
+            60% { transform: translate(-3px, 0px); }
+            80% { transform: translate(3px, 0px); }
+            100% { transform: translate(0); }
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(209, 28, 28, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(209, 28, 28, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(209, 28, 28, 0); }
+        @media (max-width: 768px) {
+            .glitch-title { font-size: 3.5rem; }
+            .bonus-grid { grid-template-columns: 1fr; }
+            .bonus-card { padding: 20px 10px; }
+            .bonus-val { font-size: 2.8rem; }
         }
-
-        /* Анимация для заголовков */
-        .glitch-header {
-            animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="scanlines"></div>
-    <div class="noise"></div>
-    <div class="cyber-grid"></div>
+    <div class="noise-overlay"></div>
+    <div class="bg-layers">
+        <div class="hex-grid"></div>
+        <div class="hud-ring"></div>
+    </div>
+    <div class="scan-line"></div>
     <canvas id="particles"></canvas>
 
+    <div class="float-bar">
+        <a href="https://t.me/primegamehub" target="_blank" class="fab tg"><i class="fab fa-telegram-plane"></i></a>
+        <a href="https://www.instagram.com/pr1me.kz/" target="_blank" class="fab inst"><i class="fab fa-instagram"></i></a>
+        <a href="tel:+77011000608" class="fab wa"><i class="fas fa-phone"></i></a>
+    </div>
+
     <header>
-        <div class="logo-box">
-            <div class="logo-top">PRIME</div>
-            <div class="logo-bottom">GAME HUB</div>
-        </div>
-        <div class="contact-info">
-            <a href="tel:+77011000608"><i class="fas fa-phone-alt"></i> +7‒701‒100‒06‒08</a>
-            <a href="mailto:pr1meofficial.kz@gmail.com"><i class="fas fa-envelope"></i> pr1meofficial.kz@gmail.com</a>
-        </div>
+        <a href="#" class="logo-container">
+            <img src="image_3.png" alt="P" class="site-icon">
+            <div class="logo-text">PRIME <span>HUB</span></div>
+        </a>
+        <div class="menu-toggle"><i class="fas fa-bars"></i></div>
     </header>
 
     <section class="hero">
-        <h1>PRIME GAME HUB</h1>
-        <p style="font-size: 1.5rem; letter-spacing: 5px; color: #aaa;">CYBER SPORT ARENA</p>
+        <h1 class="glitch-title">PRIME<br>GAME HUB</h1>
+        <div class="subtitle">
+            <i class="fas fa-bolt"></i> CYBER ARENA ASTANA <i class="fas fa-bolt"></i>
+        </div>
         
         <div class="kaspi-badge">
             <i class="fas fa-credit-card"></i> KASPI RED ACTIVE
         </div>
 
         <a href="https://t.me/primegamehub" class="cta-btn">
-            <i class="fas fa-gamepad"></i> ЗАБРОНИРОВАТЬ МЕСТО
+            ЗАБРОНИРОВАТЬ <i class="fas fa-angle-double-right"></i>
         </a>
     </section>
 
     <div class="container">
         
-        <h2 class="section-title"><i class="fas fa-gift"></i> БОНУСЫ ПОПОЛНЕНИЯ</h2>
+        <div class="section-header">
+            <i class="fas fa-cubes section-icon"></i>
+            <h2>БОНУСЫ ПОПОЛНЕНИЯ</h2>
+        </div>
+
         <div class="bonus-grid">
-            <div class="bonus-card">
+            <div class="bonus-card glass-panel">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <i class="fas fa-coins bg-icon"></i>
                 <div class="top-up">2000 ₸</div>
-                <span class="plus">+</span>
-                <div class="bonus-amount">700</div>
-                <div class="bonus-label">Бонусных единиц</div>
+                <div class="plus">+</div>
+                <div class="bonus-val">700</div>
             </div>
-            <div class="bonus-card">
+
+            <div class="bonus-card glass-panel">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <i class="fas fa-gamepad bg-icon"></i>
                 <div class="top-up">3000 ₸</div>
-                <span class="plus">+</span>
-                <div class="bonus-amount">1000</div>
-                <div class="bonus-label">Бонусных единиц</div>
+                <div class="plus">+</div>
+                <div class="bonus-val">1000</div>
             </div>
-            <div class="bonus-card">
+
+            <div class="bonus-card glass-panel">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <i class="fas fa-bomb bg-icon"></i>
                 <div class="top-up">5000 ₸</div>
-                <span class="plus">+</span>
-                <div class="bonus-amount">2000</div>
-                <div class="bonus-label">Бонусных единиц</div>
+                <div class="plus">+</div>
+                <div class="bonus-val">2000</div>
             </div>
-            <div class="bonus-card" style="border-color: var(--bonus-green);">
-                <div class="top-up" style="color: var(--bonus-green)">10 000 ₸</div>
-                <span class="plus" style="color: var(--bonus-green)">+</span>
-                <div class="bonus-amount" style="color: var(--bonus-green); border-color: var(--bonus-green); text-shadow: 0 0 10px var(--bonus-green);">5000</div>
-                <div class="bonus-label" style="color: #fff;">MAXIMUM OVERDRIVE</div>
+
+            <div class="bonus-card glass-panel max">
+                <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+                <i class="fas fa-trophy bg-icon"></i>
+                <div class="top-up">10 000 ₸</div>
+                <div class="plus">+</div>
+                <div class="bonus-val">5000</div>
+                <div class="bonus-desc" style="color: #39ff14;">MAXIMUM TIER</div>
             </div>
         </div>
 
-        <h2 class="section-title"><i class="fas fa-crown"></i> СИСТЕМА ЛОЯЛЬНОСТИ</h2>
+
+        <div class="section-header">
+            <i class="fas fa-chart-line section-icon" style="color: var(--neon-blue);"></i>
+            <h2 style="border-color: var(--neon-blue); text-shadow: 0 0 15px var(--neon-blue);">СИСТЕМА ЛОЯЛЬНОСТИ</h2>
+        </div>
+
         <div class="loyalty-container">
-            <div class="loyalty-row">
-                <span class="spend-amount">100 000 ₸</span>
-                <span class="percent-box">3%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">100 000 ₸</span> <span class="l-percent">3%</span>
             </div>
-            <div class="loyalty-row">
-                <span class="spend-amount">300 000 ₸</span>
-                <span class="percent-box">5%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">300 000 ₸</span> <span class="l-percent">5%</span>
             </div>
-            <div class="loyalty-row">
-                <span class="spend-amount">500 000 ₸</span>
-                <span class="percent-box">7%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">500 000 ₸</span> <span class="l-percent">7%</span>
             </div>
-            <div class="loyalty-row">
-                <span class="spend-amount">700 000 ₸</span>
-                <span class="percent-box">9%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">700 000 ₸</span> <span class="l-percent">9%</span>
             </div>
-            <div class="loyalty-row">
-                <span class="spend-amount">900 000 ₸</span>
-                <span class="percent-box">12%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">900 000 ₸</span> <span class="l-percent">12%</span>
             </div>
-            <div class="loyalty-row">
-                <span class="spend-amount">1 200 000 ₸</span>
-                <span class="percent-box">15%</span>
+            <div class="loyalty-item glass-panel">
+                <span class="l-amount">1 200 000 ₸</span> <span class="l-percent">15%</span>
             </div>
-            <div class="loyalty-row" style="border-bottom: none; background: rgba(0, 255, 0, 0.05);">
-                <span class="spend-amount" style="color: var(--prime-red);">1 500 000 ₸</span>
-                <span class="percent-box" style="font-size: 2.2rem;">20%</span>
+            <div class="loyalty-item glass-panel max">
+                <span class="l-amount" style="color: #fff;"><i class="fas fa-crown"></i> 1 500 000 ₸</span> 
+                <span class="l-percent">20%</span>
             </div>
         </div>
 
     </div>
 
-    <section class="social-section">
-        <h2 style="font-family: 'Orbitron'; margin-bottom: 20px;">ЕЖЕДНЕВНЫЕ РОЗЫГРЫШИ</h2>
-        <p style="max-width: 600px; margin: 0 auto 30px; color: #ccc;">
-            Будьте в курсе всех событий: акции, бонусы, турниры и розыгрыши ценных призов на нашем канале!
-        </p>
+    <section class="social-section glass-panel">
+        <h2 style="font-family: 'Orbitron'; margin-bottom: 15px; color: #fff; animation: textFlicker 3s infinite;">ЕЖЕДНЕВНЫЕ РОЗЫГРЫШИ</h2>
+        <p style="color: #ccc; margin-bottom: 25px; font-weight: 700;">Акции, бонусы и призы на нашем канале!</p>
         
         <div>
-            <a href="https://t.me/primegamehub" class="social-btn tg" target="_blank">
+            <a href="https://t.me/primegamehub" target="_blank" class="social-btn tg">
                 <i class="fab fa-telegram-plane"></i> TELEGRAM
             </a>
-            <a href="https://www.instagram.com/pr1me.kz/" class="social-btn inst" target="_blank">
+            <a href="https://www.instagram.com/pr1me.kz/" target="_blank" class="social-btn inst">
                 <i class="fab fa-instagram"></i> INSTAGRAM
             </a>
         </div>
     </section>
 
     <footer>
-        <div class="logo-box" style="display: inline-flex; border-color: #666; opacity: 0.5; margin-bottom: 20px;">
-            <div class="logo-top" style="font-size: 1.2rem;">PRIME</div>
+        <div class="logo-container" style="justify-content: center; opacity: 0.8; margin-bottom: 15px;">
+            <img src="image_3.png" alt="P" style="width: 35px; height: 35px; animation: pulseRedFast 2s infinite;">
         </div>
-        <div class="footer-contacts">
-            <p><i class="fas fa-map-marker-alt"></i> ASTANA, KAZAKHSTAN</p>
-            <p><a href="tel:+77011000608" style="color: inherit; text-decoration: none;">+7‒701‒100‒06‒08</a></p>
-            <p>DESIGNED BY GEMINI AI // <span class="highlight">SYSTEM ONLINE</span></p>
+        <div class="footer-info">
+            <p><i class="fas fa-map-marker-alt"></i> Ул. Керей, Жанибек хандар, 14/2</p>
+            <p><a href="tel:+77011000608" style="color: inherit; text-decoration: none;"><i class="fas fa-phone-alt"></i> +7‒701‒100‒06‒08</a></p>
+            <p style="margin-top: 20px; font-size: 0.9rem; color: var(--prime-red);">SYSTEM OVERLOAD: <span style="color: var(--brand-green); animation: textFlicker 1s infinite;">MAXIMUM</span></p>
         </div>
     </footer>
 
     <script>
-        // Скрипт для создания летающих частиц на фоне (красные искры)
+        // Увеличенное количество и скорость частиц
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        const particlesArray = [];
-        const numberOfParticles = 50;
-
+        let particles = [];
+        
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
-                this.color = 'rgba(255, 0, 60, ' + Math.random() + ')'; // Оттенки красного
+                this.size = Math.random() * 4; // Крупнее
+                this.speedX = Math.random() * 3 - 1.5; // Быстрее
+                this.speedY = Math.random() * 3 - 1.5; // Быстрее
+                this.color = Math.random() > 0.3 ? '#ff003c' : '#00f3ff'; // Больше красного
             }
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
-                if (this.size > 0.2) this.size -= 0.01;
-                if (this.size <= 0.2) { // Респаун
+                if (this.size > 0.1) this.size -= 0.03;
+                if (this.size <= 0.1 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
                     this.x = Math.random() * canvas.width;
                     this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 2 + 1;
+                    this.size = Math.random() * 4 + 1;
+                    this.speedX = Math.random() * 3 - 1.5;
+                    this.speedY = Math.random() * 3 - 1.5;
                 }
             }
             draw() {
@@ -548,29 +454,30 @@
         }
 
         function init() {
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
+            particles = [];
+            // ОЧЕНЬ МНОГО частиц
+            for (let i = 0; i < 150; i++) particles.push(new Particle());
         }
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
+            // Добавляем шлейф
+            ctx.fillStyle = 'rgba(2, 2, 2, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
             }
             requestAnimationFrame(animate);
         }
 
         init();
         animate();
-
-        // Адаптив канваса при ресайзе
-        window.addEventListener('resize', function(){
+        
+        window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            init();
         });
     </script>
-
 </body>
 </html>
