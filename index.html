@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIME GAME HUB | Cyber Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --prime-red: #ff003c;     /* Агрессивный красный */
+            --prime-dark: #0a0002;    /* Почти черный с красным отливом */
+            --prime-white: #ffffff;
+            --bonus-green: #39ff14;   /* Неоновый зеленый для денег/бонусов */
+            --glass-bg: rgba(20, 0, 5, 0.85);
+            --grid-color: rgba(255, 0, 60, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: crosshair;
+        }
+
+        body {
+            background-color: var(--prime-dark);
+            color: var(--prime-white);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* === ФОНОВЫЕ ЭФФЕКТЫ === */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: repeating-radial-gradient(#000 0 0.0001%,#111 0 0.0002%) 50% 0/2500px 2500px, repeating-conic-gradient(#000 0 0.0001%,#111 0 0.0002%) 60% 60%/2500px 2500px;
+            background-blend-mode: difference;
+            animation: noise .2s infinite alternate;
+            opacity: 0.05;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        /* Красная сетка на полу */
+        .cyber-grid {
+            position: fixed;
+            bottom: -30%; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) scale(2);
+            z-index: -1;
+            box-shadow: 0 -100px 100px var(--prime-dark) inset;
+        }
+
+        /* Частицы/Искры */
+        #particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        /* === HEADER === */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 2px solid var(--prime-red);
+            background: rgba(10, 0, 0, 0.95);
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+        }
+
+        .logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid var(--prime-white);
+            padding: 5px 15px;
+        }
+        
+        .logo-top {
+            font-family: 'Orbitron'; 
+            font-size: 2rem; 
+            font-weight: 900; 
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+        
+        .logo-bottom {
+            font-size: 0.8rem;
+            background: var(--prime-red);
+            color: #000;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .contact-info {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+        .contact-info a {
+            color: var(--prime-white);
+            text-decoration: none;
+            display: block;
+            transition: 0.3s;
+        }
+        .contact-info a:hover { color: var(--prime-red); text-shadow: 0 0 5px var(--prime-red); }
+
+        /* === HERO SECTION === */
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--prime-white);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .hero h1::after {
+            content: "PRIME GAME HUB";
+            position: absolute;
+            top: 0; left: 0;
+            color: var(--prime-red);
+            filter: blur(2px);
+            opacity: 0.8;
+            animation: pulseText 2s infinite alternate;
+        }
+
+        .cta-btn {
+            background: var(--prime-red);
+            color: #fff;
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            text-transform: uppercase;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            transition: 0.3s;
+            margin-top: 30px;
+            letter-spacing: 2px;
+        }
+
+        .cta-btn:hover {
+            background: #fff;
+            color: var(--prime-red);
+            box-shadow: 0 0 30px var(--prime-red);
+            transform: scale(1.05);
+        }
+
+        /* === BONUS SYSTEM (RED CARDS) === */
+        .section-title {
+            text-align: center;
+            font-family: 'Orbitron';
+            font-size: 2.5rem;
+            margin: 80px 0 40px;
+            color: var(--prime-white);
+            text-shadow: 0 0 10px var(--prime-red);
+            border-bottom: 1px solid var(--prime-red);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .bonus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .bonus-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--prime-red);
+            padding: 30px;
+            position: relative;
+            transition: 0.4s;
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+        }
+
+        .bonus-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3);
+            background: rgba(40, 0, 10, 0.9);
+        }
+
+        .top-up {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--prime-white);
+        }
+
+        .plus {
+            font-size: 2rem;
+            color: var(--prime-red);
+            margin: 10px 0;
+            display: block;
+        }
+
+        .bonus-amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--prime-red);
+            text-shadow: 0 0 10px var(--prime-red);
+            background: rgba(0,0,0,0.5);
+            padding: 5px;
+            border: 1px dashed var(--prime-red);
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .bonus-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #aaa;
+        }
+
+        /* Kaspi Red Badge */
+        .kaspi-badge {
+            margin-top: 20px;
+            background: #d11c1c;
+            color: white;
+            padding: 5px 15px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 4px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(209, 28, 28, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        /* === LOYALTY SYSTEM (LIST) === */
+        .loyalty-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--prime-white);
+            padding: 40px;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .loyalty-container::before {
+            content: "LEVEL UP SYSTEM";
+            position: absolute;
+            top: -15px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--prime-dark);
+            padding: 0 20px;
+            font-family: 'Orbitron';
+            color: var(--prime-red);
+            border: 1px solid var(--prime-red);
+        }
+
+        .loyalty-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .loyalty-row:hover {
+            background: rgba(255, 0, 60, 0.1);
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .spend-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .percent-box {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--bonus-green);
+            text-shadow: 0 0 5px var(--bonus-green);
+        }
+
+        /* === SOCIALS === */
+        .social-section {
+            padding: 60px 20px;
+            text-align: center;
+            background: linear-gradient(0deg, #000 0%, var(--prime-dark) 100%);
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: transparent;
+            border: 2px solid var(--prime-white);
+            color: var(--prime-white);
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1.2rem;
+            font-family: 'Orbitron';
+            text-decoration: none;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-btn i { font-size: 1.5rem; }
+
+        .social-btn:hover {
+            background: var(--prime-white);
+            color: #000;
+        }
+
+        .social-btn.tg { border-color: #0088cc; color: #0088cc; }
+        .social-btn.tg:hover { background: #0088cc; color: #fff; box-shadow: 0 0 20px #0088cc; }
+
+        .social-btn.inst { border-color: #e1306c; color: #e1306c; }
+        .social-btn.inst:hover { background: #e1306c; color: #fff; box-shadow: 0 0 20px #e1306c; }
+
+        /* === FOOTER === */
+        footer {
+            padding: 30px;
+            text-align: center;
+            border-top: 2px solid var(--prime-red);
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 50px;
+        }
+        
+        .footer-contacts p { margin: 5px 0; color: #aaa; }
+        .highlight { color: var(--prime-red); font-weight: bold; }
+
+        @keyframes pulseText {
+            0% { opacity: 0.5; text-shadow: 0 0 5px var(--prime-red); }
+            100% { opacity: 1; text-shadow: 0 0 20px var(--prime-red), 0 0 40px var(--prime-red); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(209, 28, 28, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(209, 28, 28, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(209, 28, 28, 0); }
+        }
+
+        /* Анимация для заголовков */
+        .glitch-header {
+            animation: glitch-anim 3s infinite linear alternate-reverse;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <div class="noise"></div>
+    <div class="cyber-grid"></div>
+    <canvas id="particles"></canvas>
+
+    <header>
+        <div class="logo-box">
+            <div class="logo-top">PRIME</div>
+            <div class="logo-bottom">GAME HUB</div>
+        </div>
+        <div class="contact-info">
+            <a href="tel:+77011000608"><i class="fas fa-phone-alt"></i> +7‒701‒100‒06‒08</a>
+            <a href="mailto:pr1meofficial.kz@gmail.com"><i class="fas fa-envelope"></i> pr1meofficial.kz@gmail.com</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>PRIME GAME HUB</h1>
+        <p style="font-size: 1.5rem; letter-spacing: 5px; color: #aaa;">CYBER SPORT ARENA</p>
+        
+        <div class="kaspi-badge">
+            <i class="fas fa-credit-card"></i> KASPI RED ACTIVE
+        </div>
+
+        <a href="https://t.me/primegamehub" class="cta-btn">
+            <i class="fas fa-gamepad"></i> ЗАБРОНИРОВАТЬ МЕСТО
+        </a>
+    </section>
+
+    <div class="container">
+        
+        <h2 class="section-title"><i class="fas fa-gift"></i> БОНУСЫ ПОПОЛНЕНИЯ</h2>
+        <div class="bonus-grid">
+            <div class="bonus-card">
+                <div class="top-up">2000 ₸</div>
+                <span class="plus">+</span>
+                <div class="bonus-amount">700</div>
+                <div class="bonus-label">Бонусных единиц</div>
+            </div>
+            <div class="bonus-card">
+                <div class="top-up">3000 ₸</div>
+                <span class="plus">+</span>
+                <div class="bonus-amount">1000</div>
+                <div class="bonus-label">Бонусных единиц</div>
+            </div>
+            <div class="bonus-card">
+                <div class="top-up">5000 ₸</div>
+                <span class="plus">+</span>
+                <div class="bonus-amount">2000</div>
+                <div class="bonus-label">Бонусных единиц</div>
+            </div>
+            <div class="bonus-card" style="border-color: var(--bonus-green);">
+                <div class="top-up" style="color: var(--bonus-green)">10 000 ₸</div>
+                <span class="plus" style="color: var(--bonus-green)">+</span>
+                <div class="bonus-amount" style="color: var(--bonus-green); border-color: var(--bonus-green); text-shadow: 0 0 10px var(--bonus-green);">5000</div>
+                <div class="bonus-label" style="color: #fff;">MAXIMUM OVERDRIVE</div>
+            </div>
+        </div>
+
+        <h2 class="section-title"><i class="fas fa-crown"></i> СИСТЕМА ЛОЯЛЬНОСТИ</h2>
+        <div class="loyalty-container">
+            <div class="loyalty-row">
+                <span class="spend-amount">100 000 ₸</span>
+                <span class="percent-box">3%</span>
+            </div>
+            <div class="loyalty-row">
+                <span class="spend-amount">300 000 ₸</span>
+                <span class="percent-box">5%</span>
+            </div>
+            <div class="loyalty-row">
+                <span class="spend-amount">500 000 ₸</span>
+                <span class="percent-box">7%</span>
+            </div>
+            <div class="loyalty-row">
+                <span class="spend-amount">700 000 ₸</span>
+                <span class="percent-box">9%</span>
+            </div>
+            <div class="loyalty-row">
+                <span class="spend-amount">900 000 ₸</span>
+                <span class="percent-box">12%</span>
+            </div>
+            <div class="loyalty-row">
+                <span class="spend-amount">1 200 000 ₸</span>
+                <span class="percent-box">15%</span>
+            </div>
+            <div class="loyalty-row" style="border-bottom: none; background: rgba(0, 255, 0, 0.05);">
+                <span class="spend-amount" style="color: var(--prime-red);">1 500 000 ₸</span>
+                <span class="percent-box" style="font-size: 2.2rem;">20%</span>
+            </div>
+        </div>
+
+    </div>
+
+    <section class="social-section">
+        <h2 style="font-family: 'Orbitron'; margin-bottom: 20px;">ЕЖЕДНЕВНЫЕ РОЗЫГРЫШИ</h2>
+        <p style="max-width: 600px; margin: 0 auto 30px; color: #ccc;">
+            Будьте в курсе всех событий: акции, бонусы, турниры и розыгрыши ценных призов на нашем канале!
+        </p>
+        
+        <div>
+            <a href="https://t.me/primegamehub" class="social-btn tg" target="_blank">
+                <i class="fab fa-telegram-plane"></i> TELEGRAM
+            </a>
+            <a href="https://www.instagram.com/pr1me.kz/" class="social-btn inst" target="_blank">
+                <i class="fab fa-instagram"></i> INSTAGRAM
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="logo-box" style="display: inline-flex; border-color: #666; opacity: 0.5; margin-bottom: 20px;">
+            <div class="logo-top" style="font-size: 1.2rem;">PRIME</div>
+        </div>
+        <div class="footer-contacts">
+            <p><i class="fas fa-map-marker-alt"></i> ASTANA, KAZAKHSTAN</p>
+            <p><a href="tel:+77011000608" style="color: inherit; text-decoration: none;">+7‒701‒100‒06‒08</a></p>
+            <p>DESIGNED BY GEMINI AI // <span class="highlight">SYSTEM ONLINE</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // Скрипт для создания летающих частиц на фоне (красные искры)
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particlesArray = [];
+        const numberOfParticles = 50;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = 'rgba(255, 0, 60, ' + Math.random() + ')'; // Оттенки красного
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+                if (this.size <= 0.2) { // Респаун
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 1;
+                }
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        // Адаптив канваса при ресайзе
+        window.addEventListener('resize', function(){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+
+</body>
+</html>
